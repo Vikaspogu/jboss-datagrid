@@ -22,18 +22,17 @@ public class BidInfoMarshaller implements MessageMarshaller<BidInfo> {
 
 	@Override
 	public String getTypeName() {
-		return "mode.BidInfo";
+		return "model.BidInfo";
 	}
 
 	@Override
 	public BidInfo readFrom(ProtoStreamReader reader) throws IOException {
-		return new BidInfo(reader.readString("bidderName"), reader.readDouble("bidderAmount"));
+		return new BidInfo(reader.readString("bidderName"));
 	}
 
 	@Override
 	public void writeTo(ProtoStreamWriter writer, BidInfo bid) throws IOException {
 		writer.writeString("bidderName", bid.getBidderName());
-		writer.writeDouble("bidderAmount", bid.getBidderAmount());
 	}
 
 }

@@ -50,8 +50,7 @@ public class LocalCacheTest {
 	public void setUp() throws Exception {
 		localCache = new LocalCacheConfigManager();
 		List<BidInfo> bid = new ArrayList<BidInfo>();
-		bid.add(new BidInfo("bidder1", 20.00));
-		bid.add(new BidInfo("bidder2", 14.24));
+		bid.add(new BidInfo("bidder1"));
 		Item item = new Item("1", "IPhone", addDate(0), bid);
 		localCache.addItem(item);
 
@@ -83,18 +82,16 @@ public class LocalCacheTest {
 		assertEquals(5, cache.size());
 		assertTrue(cache.containsKey("1"));
 
-		// List<Item> sortByDateList = localCache.sortByEndingDate(false);
-		// for (Item items : sortByDateList) {
-		// System.out.println("Order by " + items.getEndingDate() + ", " +
-		// items.getItemDesc());
-		// }
-		//
-		// List<Item> searchByDesc = localCache.searchByDesc("IPhone");
-		// assertEquals(1, searchByDesc.size());
-		// for (Item items : searchByDesc) {
-		// System.out.println("Search By Description " + items.getEndingDate() + ", " +
-		// items.getItemDesc());
-		// }
+		List<Item> sortByDateList = localCache.sortByEndingDate(false);
+		for (Item items : sortByDateList) {
+			System.out.println("Order by " + items.getEndingDate() + ", " + items.getItemDesc());
+		}
+
+		List<Item> searchByDesc = localCache.searchByDesc("IPhone");
+		assertEquals(1, searchByDesc.size());
+		for (Item items : searchByDesc) {
+			System.out.println("Search By Description " + items.getEndingDate() + ", " + items.getItemDesc());
+		}
 
 		List<Item> wcSearch = localCache.searchByWildcardDesc("IPhone");
 		assertEquals(4, wcSearch.size());

@@ -38,13 +38,12 @@ public class RemoteCacheConfigManager {
 		SerializationContext serCtx = ProtoStreamMarshaller.getSerializationContext(remoteCacheManager);
 		try {
 			serCtx.registerProtoFiles(FileDescriptorSource.fromResources("model/item.proto"));
+			serCtx.registerMarshaller(new ItemMarshaller());
+			serCtx.registerMarshaller(new BidInfoMarshaller());
 		} catch (DescriptorParserException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		serCtx.registerMarshaller(new ItemMarshaller());
-		serCtx.registerMarshaller(new BidInfoMarshaller());
-
 	}
 
 	public static void registerProtofile(String jmxHost, int jmxPort, String cacheConatiner) throws Exception {

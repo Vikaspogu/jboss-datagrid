@@ -6,11 +6,13 @@ package com.sample.jdg;
 import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.hibernate.search.cfg.Environment;
 import org.hibernate.search.cfg.SearchMapping;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.infinispan.Cache;
@@ -34,11 +36,11 @@ public class LocalCacheConfigManager implements AbstractLocalCacheConfigManager 
 	public LocalCacheConfigManager() {
 		super();
 		SearchMapping mapping = new SearchMapping();
-		mapping.entity(Item.class).indexed().providedId().property("itemId", ElementType.FIELD).field()
-				.property("itemDesc", ElementType.FIELD).field().property("endingDate", ElementType.FIELD).field();
+		mapping.entity(Item.class).indexed().providedId().property("name", ElementType.METHOD).field()
+				.property("surname", ElementType.METHOD).field();
 
 		Properties properties = new Properties();
-		properties.put(org.hibernate.search.cfg.Environment.MODEL_MAPPING, mapping);
+		properties.put(Environment.MODEL_MAPPING, mapping);
 
 		Configuration dcc = getGlobalCacheManager().getDefaultCacheConfiguration();
 		Configuration c = new ConfigurationBuilder().read(dcc).indexing().index(Index.LOCAL).withProperties(properties)
@@ -49,6 +51,7 @@ public class LocalCacheConfigManager implements AbstractLocalCacheConfigManager 
 
 	public void addItem(Item item) {
 		cache.put(item.getItemId(), item);
+		cache.put(item.getItemId(), "items_key");
 	}
 
 	public Item getItem(String itemId) {
@@ -56,14 +59,29 @@ public class LocalCacheConfigManager implements AbstractLocalCacheConfigManager 
 		return item;
 	}
 
+	public List<String> getItemIds() {
+		List<String> itemIds = new ArrayList<String>();
+		for (Entry<Object, Object> entry : cache.entrySet()) {
+			if (entry.getValue().equals("items_key")) {
+				itemIds.add((String) entry.getKey());
+			}
+		}
+		return itemIds;
+	}
+
 	public List<Item> sortByEndingDate(Boolean desc) {
 		SearchManager searchManager = Search.getSearchManager(cache);
 		QueryBuilder qb = searchManager.buildQueryBuilderForClass(Item.class).get();
-		Query query = qb.keyword().wildcard().onField("endingDate").matching("*").createQuery();
+		Query query = qb.all().createQuery();
 		CacheQuery<Object> cq = searchManager.getQuery(query, Item.class);
-		org.apache.lucene.search.Sort sort = new Sort(new SortField("endingDate", SortField.Type.STRING, desc));
+		org.apache.lucene.search.Sort sort = new Sort(new SortField("endingDate", SortField.Type.LONG, desc));
 		cq.sort(sort);
-		return null;
+		List<Object> results = cq.list();
+		List<Item> items = new ArrayList<Item>();
+		for (Object object : results) {
+			items.add((Item) object);
+		}
+		return items;
 	}
 
 	public List<Item> searchByEndingMinutes(int minutes) {

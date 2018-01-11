@@ -3,11 +3,10 @@ package model;
 message Item{
 	required string itemId = 1;
 	required string itemDesc = 2;
-	required int32 endingDate = 3;
+	required int64 endingDate = 3;
 	repeated BidInfo bidInfo = 4;
 }
 
 message BidInfo{
 	required string bidderName = 1;
-	required int32 bidderAmount = 2;
 }
